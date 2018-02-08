@@ -1,0 +1,14 @@
+syntax="proto3";
+
+option java_package="so.sao.test.protobuf";
+
+service Greeter {
+    rpc sayHello(HelloRequest) returns (HelloResponse);
+}
+
+message HelloRequest {
+    string name = 1;
+}
+message HelloResponse{
+    string message = 1;
+}

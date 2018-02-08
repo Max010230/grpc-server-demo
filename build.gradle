@@ -1,0 +1,75 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.10.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.google.protobuf'
+
+group = 'so.sao'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+protobuf {
+	protoc {
+		artifact = 'com.google.protobuf:protoc:3.0.0'
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java:1.0.3"
+		}
+	}
+
+	generateProtoTasks {
+		ofSourceSet('main').each { task ->
+			task.builtins {
+				java{
+					outputSubDir = 'protoGen'
+				}
+			}
+			task.plugins {
+				grpc {
+					outputSubDir = 'protoGen'
+				}
+			}
+		}
+	}
+	generatedFilesBaseDir = "$projectDir/src/"
+}
+
+sourceSets {
+	main {
+		java{
+			srcDir 'src/main/protoGen'
+		}
+
+	}
+
+}
+
+task cleanProtoGen{
+	doFirst{
+		delete("$projectDir/src/main/protoGen")
+	}
+}
+clean.dependsOn cleanProtoGen
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
+	compile group: 'net.devh', name: 'grpc-server-spring-boot-starter', version: '1.3.0-RELEASE'
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
